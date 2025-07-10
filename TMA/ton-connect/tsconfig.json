@@ -1,0 +1,20 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
+  ],
+  "compilerOptions": {
+    "baseUrl": ".", // Важно: убедитесь, что baseUrl установлен
+    "paths": {
+      "@/*": ["./src/*"] // Соответствует алиасу в vite.config.js
+    }
+  },
+   // ... другие настройки, например, "include" ...
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.d.ts",
+    "src/**/*.tsx",
+    "src/**/*.vue" // Убедитесь, что .vue файлы включены
+  ]
+}
