@@ -2,25 +2,21 @@
 import { ref, watch, reactive } from 'vue';
 import type { Task } from '../types';
 
-// Для v-model
 const props = defineProps<{ modelValue: boolean }>();
 const emit = defineEmits(['update:modelValue', 'create-task']);
 
-// Локальное состояние для управления видимостью
 const dialog = ref(props.modelValue);
 watch(() => props.modelValue, (val) => { dialog.value = val; });
 watch(dialog, (val) => { if (!val) emit('update:modelValue', false); });
 
-// Данные формы
-const form = ref<any>(null); // Ссылка на VForm для валидации
-const newTask = reactive<Omit<Task, 'id' | 'status'>>({
+const form = ref<any>(null);
+const newTask = reactive<Omit<Task, 'id' | 'status' | 'customerWallet'>>({
   description: '',
   amount: null,
   currency: 'TON',
-  wallet: '',
+  performerWallet: '',
 });
 
-// Правила валидации
 const rules = {
   required: (v: any) => !!v || 'Поле обязательно для заполнения',
   isNumber: (v: any) => !isNaN(parseFloat(v)) && isFinite(v) || 'Должно быть числом',
@@ -31,13 +27,12 @@ const rules = {
 const resetForm = () => {
     newTask.description = '';
     newTask.amount = null;
-    newTask.wallet = '';
+    newTask.performerWallet = '';
     form.value?.resetValidation();
 }
 
 const handleClose = () => {
   dialog.value = false;
-  // Сбрасываем форму после закрытия
   setTimeout(resetForm, 300);
 }
 
@@ -76,7 +71,7 @@ const submit = async () => {
             :rules="[rules.required, rules.isNumber, rules.isPositive]"
           ></v-text-field>
           <v-text-field
-            v-model="newTask.wallet"
+            v-model="newTask.performerWallet"
             label="Кошелек исполнителя"
             placeholder="EQ..."
             variant="outlined"
@@ -91,5 +86,5 @@ const submit = async () => {
         </v-card-actions>
       </v-form>
     </v-card>
-  </v-dialog>
+  </v-dialog> <!-- ВОТ ЗДЕСЬ НУЖНО БЫЛО ЗАКРЫТЬ ТЕГ -->
 </template>

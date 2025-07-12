@@ -3,18 +3,24 @@ import { ref } from 'vue';
 import TaskCard from './TaskCard.vue';
 import CreateTaskDialog from './CreateTaskDialog.vue';
 import type { Task, TaskStatus } from '../types';
+import { useTonWallet, useTonConnectUI } from '@tonconnect/ui-vue';
+import { toUserFriendlyAddress } from '@tonconnect/sdk';
 
-// Для управления видимостью диалога
+// Получаем данные кошелька и UI
+const wallet = useTonWallet();
+const [tonConnectUI] = useTonConnectUI();
+
 const isDialogVisible = ref(false);
 
-// Моковые данные (имитация данных со смарт-контракта)
+// Моковые данные
 const tasks = ref<Task[]>([
   {
     id: 1,
     description: 'Сделать редизайн главной страницы сайта. Использовать светлые тона и современный минималистичный стиль.',
     amount: 150.5,
     currency: 'TON',
-    wallet: 'EQB...sdaf',
+    performerWallet: 'EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c',
+    customerWallet: 'UQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAECg',
     status: 'in_progress',
   },
   {
@@ -22,35 +28,27 @@ const tasks = ref<Task[]>([
     description: 'Написать парсер для сайта новостей',
     amount: 75,
     currency: 'TON',
-    wallet: 'EQA...asdf',
+    performerWallet: 'EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c',
+    customerWallet: 'UQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAECg',
     status: 'pending_confirmation',
   },
-  {
-    id: 3,
-    description: 'Развернуть бота в Docker',
-    amount: 30,
-    currency: 'TON',
-    wallet: 'EQC...qwer',
-    status: 'completed',
-  },
-  {
-    id: 4,
-    description: 'Настроить CI/CD для проекта на Gitlab',
-    amount: 200,
-    currency: 'TON',
-    wallet: 'EQD...zxcv',
-    status: 'cancelled',
-  }
 ]);
 
 // Функция для "создания" новой задачи
-const handleCreateTask = (newTaskData: Omit<Task, 'id' | 'status'>) => {
+const handleCreateTask = (newTaskData: Omit<Task, 'id' | 'status' | 'customerWallet'>) => {
+  if (!wallet.value) {
+    // Показываем модальное окно, если кошелек не подключен
+    tonConnectUI.openModal();
+    return;
+  }
+
   const newTask: Task = {
     ...newTaskData,
-    id: Date.now(), // Уникальный ID на основе времени
-    status: 'in_progress' // Новая задача сразу в работе
+    id: Date.now(),
+    customerWallet: toUserFriendlyAddress(wallet.value.account.address), // Добавляем кошелек заказчика
+    status: 'in_progress'
   };
-  tasks.value.unshift(newTask); // Добавляем в начало списка
+  tasks.value.unshift(newTask);
 };
 
 // Функция для "обновления" статуса
@@ -58,7 +56,6 @@ const handleUpdateStatus = (payload: { id: number, newStatus: TaskStatus }) => {
   const task = tasks.value.find(t => t.id === payload.id);
   if (task) {
     task.status = payload.newStatus;
-    // Здесь в будущем будет вызов смарт-контракта
     console.log(`Task ${payload.id} status updated to ${payload.newStatus}`);
   }
 };
@@ -66,12 +63,6 @@ const handleUpdateStatus = (payload: { id: number, newStatus: TaskStatus }) => {
 
 <template>
   <v-container>
-    <div class="d-flex align-center mb-4">
-      <!-- <h1 class="text-h5 font-weight-bold">Мои Задачи</h1> -->
-      <v-spacer></v-spacer>
-      <!-- Можно добавить фильтры или сортировку -->
-    </div>
-
     <v-slide-y-transition group tag="div" class="task-list">
       <task-card
         v-for="task in tasks"
@@ -87,7 +78,6 @@ const handleUpdateStatus = (payload: { id: number, newStatus: TaskStatus }) => {
     </p>
   </v-container>
 
-  <!-- Плавающая кнопка для создания задачи -->
   <v-fab
     icon="mdi-plus"
     location="bottom end"
@@ -98,7 +88,6 @@ const handleUpdateStatus = (payload: { id: number, newStatus: TaskStatus }) => {
     @click="isDialogVisible = true"
   ></v-fab>
 
-  <!-- Диалог создания задачи -->
   <create-task-dialog
     v-model="isDialogVisible"
     @create-task="handleCreateTask"

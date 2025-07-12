@@ -5,6 +5,7 @@ export interface Task {
   description: string;
   amount: number | null;
   currency: 'TON';
-  wallet: string;
+  performerWallet: string;
+  customerWallet: string;
   status: TaskStatus;
 }

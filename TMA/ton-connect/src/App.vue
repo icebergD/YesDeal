@@ -2,7 +2,7 @@
 import { onMounted } from 'vue';
 import TaskBoard from './components/TaskBoard.vue';
 import ConnectWalletButton from './components/ConnectWalletButton.vue';
-import { TonConnectUIProvider as TonConnectUIPlugin } from '@townsquarelabs/ui-vue';
+
 
 
 onMounted(() => {
@@ -11,13 +11,11 @@ onMounted(() => {
   window.Telegram?.WebApp.expand();
 });
 
-const manifestUrl = new URL('/tonconnect-manifest.json', window.location.href).toString();
 </script>
 
 
 <template>
-  <!-- Оборачиваем все приложение в провайдер -->
-  <TonConnectUIProvider :manifest-url="manifestUrl">
+
     <v-app>
       <!-- Шапка приложения -->
       <v-app-bar app color="background" flat class="px-2">
@@ -32,16 +30,18 @@ const manifestUrl = new URL('/tonconnect-manifest.json', window.location.href).t
         <task-board />
       </v-main>
     </v-app>
-  </TonConnectUIProvider>
 </template>
 
 
 <style>
+/* Убираем лишние скроллбары */
 html {
   overflow-y: auto !important;
 }
-
-.v-toolbar-title {
-  flex: 0 1 auto;
+/* Стили для кнопки TON Connect, чтобы она лучше вписывалась */
+:root {
+  --t-connect-button-border-radius: 8px;
+  --t-connect-button-font-size: 14px;
+  --t-connect-button-padding: 8px 14px;
 }
 </style>

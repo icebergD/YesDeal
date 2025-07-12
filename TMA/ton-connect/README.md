@@ -14,3 +14,4 @@ npm i --force
 
 
 ngrok http --domain=prime-firmly-lark.ngrok-free.app 5173
+ssh -R 80:localhost:5173 nokey@localhost.run
