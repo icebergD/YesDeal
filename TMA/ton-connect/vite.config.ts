@@ -17,8 +17,8 @@ export default defineConfig({
     allowedHosts: [
       'prime-firmly-lark.ngrok-free.app',
       '*',
-      '01322f41ade096.lhr.life',
-      '93cad13fd93e7c.lhr.life'
+      'f436d047f57cdc.lhr.life',
+      '0ab4a41a0fcdbd.lhr.life'
     ]
   }
 })

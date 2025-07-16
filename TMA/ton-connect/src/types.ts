@@ -1,4 +1,8 @@
-export type TaskStatus = 'in_progress' | 'pending_confirmation' | 'completed' | 'cancelled';
+// src/types.ts
+
+export type VoteType = 'confirm' | 'cancel' | null;
+
+export type TaskStatus = 'in_progress' | 'completed' | 'cancelled';
 
 export interface Task {
   id: number;
@@ -7,5 +11,7 @@ export interface Task {
   currency: 'TON';
   performerWallet: string;
   customerWallet: string;
+  customerVote: VoteType;
+  performerVote: VoteType;
   status: TaskStatus;
 }
